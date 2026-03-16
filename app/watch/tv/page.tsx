@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ServiceConfig } from '../../../src/services/config';
@@ -30,9 +32,11 @@ function getSessionToken(): string | null {
     return match ? match[2] : null;
 }
 
-// ─── Composant ───────────────────────────────────────────────────────────────
+import { Suspense } from 'react';
 
-export default function WatchTVPage() {
+// ─── Composants internes ───────────────────────────────────────────────────
+
+function WatchTVContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -755,5 +759,20 @@ export default function WatchTVPage() {
                 />
             )}
         </div>
+    );
+}
+
+// ─── Export Principal avec Suspense ──────────────────────────────────────────
+
+export default function WatchTVPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <p className="text-white text-sm">Chargement du lecteur TV...</p>
+            </div>
+        }>
+            <WatchTVContent />
+        </Suspense>
     );
 }
