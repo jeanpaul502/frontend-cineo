@@ -308,12 +308,10 @@ class AuthService extends ApiService {
     }
 
     async deleteAccount(): Promise<void> {
-        const user = await this.getCurrentUser();
-        if (user && user.id) {
-            return this.request<void>(`/users/${user.id}`, {
-                method: 'DELETE'
-            });
-        }
+        await this.request<void>('/auth/delete', {
+            method: 'DELETE',
+        });
+        this.removeToken();
     }
 
     async changePassword(currentPassword: string, newPassword: string): Promise<void> {

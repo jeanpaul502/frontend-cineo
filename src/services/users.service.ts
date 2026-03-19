@@ -16,9 +16,10 @@ export interface User {
     lastActive?: string; // ISO date string
     profilePicture?: string;
     createdAt: string;
-    
+    isVerified: boolean; // Backend verification flag
+
     // Computed/Frontend helpers (optional, can be derived in component)
-    status?: 'online' | 'offline' | 'blocked'; 
+    status?: 'online' | 'offline' | 'blocked';
 }
 
 class UsersService extends ApiService {
