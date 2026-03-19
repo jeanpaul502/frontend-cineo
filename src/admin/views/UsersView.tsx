@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@iconify/react';
 import { usersService, User as ApiUser } from '../../services/users.service';
 
@@ -37,6 +37,13 @@ const UsersView: React.FC = () => {
     const [modalType, setModalType] = useState<'role' | 'subscription' | 'block' | 'delete' | null>(null);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium' | 'vip'>('free');
+    const [isActionLoading, setIsActionLoading] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+    const showToast = useCallback((message: string, type: 'success' | 'error') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3500);
+    }, []);
 
     useEffect(() => {
         fetchUsers();
@@ -139,8 +146,9 @@ const UsersView: React.FC = () => {
     };
 
     const handleConfirmAction = async () => {
-        if (!selectedUser || !modalType) return;
+        if (!selectedUser || !modalType || isActionLoading) return;
 
+        setIsActionLoading(true);
         try {
             let updates: Partial<User> = {};
             
@@ -156,34 +164,43 @@ const UsersView: React.FC = () => {
                     break;
                 case 'delete':
                     await usersService.deleteUser(selectedUser.id);
-                    setUsers(users.filter(u => u.id !== selectedUser.id));
+                    setUsers(prev => prev.filter(u => u.id !== selectedUser.id));
                     setModalType(null);
                     setSelectedUser(null);
+                    showToast('Utilisateur supprimé avec succès', 'success');
                     return;
                 default:
                     return;
             }
 
             // Call backend API
-            const updatedUser = await usersService.updateUser(selectedUser.id, updates);
+            await usersService.updateUser(selectedUser.id, updates);
 
-            // Update local state
-            setUsers(users.map(u => {
+            // Optimistic update local state
+            setUsers(prev => prev.map(u => {
                 if (u.id === selectedUser.id) {
-                    // Re-apply computed fields on top of updated user
-                    const status = updates.accountStatus === 'blocked' ? 'blocked' : (u.status === 'blocked' ? 'offline' : u.status);
-                    return {
-                        ...u,
-                        ...updates,
-                        status
-                    };
+                    const newAccountStatus = (updates.accountStatus ?? u.accountStatus) as 'active' | 'blocked';
+                    const status: 'online' | 'offline' | 'blocked' =
+                        newAccountStatus === 'blocked' ? 'blocked'
+                        : u.status === 'blocked' ? 'offline'
+                        : u.status;
+                    return { ...u, ...updates, status };
                 }
                 return u;
             }));
 
-        } catch (error) {
+            const actionLabels: Record<string, string> = {
+                role: 'Rôle modifié avec succès',
+                subscription: 'Abonnement mis à jour avec succès',
+                block: updates.accountStatus === 'blocked' ? 'Utilisateur bloqué' : 'Utilisateur débloqué',
+            };
+            showToast(actionLabels[modalType] || 'Action effectuée', 'success');
+
+        } catch (error: any) {
             console.error('Failed to update user:', error);
-            // Optionally show error notification
+            showToast(error?.message || 'Une erreur est survenue', 'error');
+        } finally {
+            setIsActionLoading(false);
         }
 
         setModalType(null);
@@ -224,10 +241,7 @@ const UsersView: React.FC = () => {
 
     const handleRefresh = () => {
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
+        fetchUsers();
     };
 
     const getStatusBadge = (status: string) => {
@@ -295,6 +309,17 @@ const UsersView: React.FC = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Toast Notification */}
+            {toast && (
+                <div className={`fixed top-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl border backdrop-blur-sm animate-in slide-in-from-right-4 duration-300 ${
+                    toast.type === 'success'
+                    ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                    : 'bg-red-500/10 border-red-500/30 text-red-400'
+                }`}>
+                    <Icon icon={toast.type === 'success' ? 'solar:check-circle-bold' : 'solar:danger-circle-bold'} width="20" />
+                    <span className="text-sm font-medium">{toast.message}</span>
+                </div>
+            )}
             {/* Filters Bar */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between backdrop-blur-sm">
                 {/* Search */}
@@ -610,7 +635,8 @@ const UsersView: React.FC = () => {
                                 </button>
                                 <button 
                                     onClick={handleConfirmAction}
-                                    className={`flex-1 px-6 py-3.5 rounded-xl text-white text-sm font-bold shadow-lg shadow-black/20 transition-all hover:scale-[1.02] ${
+                                    disabled={isActionLoading}
+                                    className={`flex-1 px-6 py-3.5 rounded-xl text-white text-sm font-bold shadow-lg shadow-black/20 transition-all hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                                         modalType === 'delete' || (modalType === 'block' && selectedUser.status !== 'blocked')
                                         ? 'bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400' 
                                         : modalType === 'subscription'
@@ -618,7 +644,12 @@ const UsersView: React.FC = () => {
                                         : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400'
                                     }`}
                                 >
-                                    Confirmer
+                                    {isActionLoading ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <Icon icon="svg-spinners:ring-resize" width="16" />
+                                            En cours...
+                                        </span>
+                                    ) : 'Confirmer'}
                                 </button>
                             </div>
                         </div>
