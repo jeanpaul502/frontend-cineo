@@ -199,7 +199,6 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
         // ── Non-HLS: MP4 / direct source ──────────────────────────────────────
         if (!isM3u8) {
             setIsBuffering(true);
-            // Try direct URL; if CORS blocks it, proxy handles it server-side
             video.src = proxyUrl;
             video.load();
             video.addEventListener('canplay', () => {
@@ -213,9 +212,13 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
             return;
         }
 
-        // ── HLS: try direct first, proxy as fallback ───────────────────────────
+        // ── HLS: Always use proxy ───────────────────────────
+        // In the browser, direct URLs almost always fail due to:
+        // 1. Mixed Content (HTTPS website trying to load HTTP m3u8)
+        // 2. Missing CORS headers (Access-Control-Allow-Origin: *)
+        // The mobile app bypasses this, but Web requires the backend proxy.
         setIsBuffering(true);
-        initHls(cleanUrl, true, proxyUrl);
+        initHls(proxyUrl, false);
 
     }, []); // stable — deps accessed via refs / closures
 
