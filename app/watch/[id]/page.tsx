@@ -438,7 +438,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
                 </div>
             )}
 
-            {/* ── Top Bar (back + title) ── */}
+            {/* ── Top Bar (back button) ── */}
             <div className={`w-full absolute top-0 right-0 left-0 pointer-events-none z-20 transition-all duration-500 ease-in-out ${showControls || !isPlaying ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>
                 <div className="absolute w-full transition-all z-10 top-0 left-0 right-0 h-[120px] bg-gradient-to-b to-transparent from-black/80" />
                 <div className="relative z-20 p-8">
@@ -455,9 +455,6 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
                                 </svg>
                                 Retour
                             </button>
-                            <span className="text-white font-semibold text-base drop-shadow-lg truncate max-w-xs">
-                                {movie.title}
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -469,6 +466,13 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
 
                 <div className="relative z-20 p-6 pt-2 pb-10">
                     <div className="flex flex-col w-full gap-2">
+
+                        {/* Movie Title */}
+                        <div className="w-full flex pb-1 pointer-events-auto px-1">
+                            <h2 className="text-white font-bold text-lg md:text-2xl drop-shadow-md truncate">
+                                {movie.title}
+                            </h2>
+                        </div>
 
                         {/* Progress Bar */}
                         <div
