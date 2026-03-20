@@ -256,6 +256,7 @@ export const Navbar = () => {
         : userData?.email || 'Utilisateur';
 
     return (
+        <>
         <nav className="fixed top-0 z-50 w-full bg-black/90 backdrop-blur-lg border-b border-white/10 shadow-lg">
             <div className="flex items-center justify-between px-4 py-4 md:px-16 lg:px-24 relative">
                 {/* Left: Logo + App Name */}
@@ -271,7 +272,7 @@ export const Navbar = () => {
 
                 {/* Center: Navigation Menu */}
                 <ul className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-bold text-gray-300 absolute left-1/2 -translate-x-1/2">
-                    {["Home", "Films", "Séries", "Chaines TV", "Ma Liste"].map((item) => (
+                    {["Home", "Films", "Chaines TV", "Ma Liste"].map((item) => (
                         <li
                             key={item}
                             onClick={() => handleNavigation(item)}
@@ -674,7 +675,7 @@ export const Navbar = () => {
                         <input
                             ref={searchInputRef}
                             type="text"
-                            placeholder="Rechercher films, séries, TV..."
+                            placeholder="Rechercher films, TV..."
                             className="block w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 focus:ring-4 focus:ring-blue-500/10 transition-all text-base"
                             autoFocus
                         />
@@ -690,5 +691,40 @@ export const Navbar = () => {
                 </div>
             )}
         </nav>
+
+        {/* ── Bottom Navigation for Mobile ── */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-[#000000] border-t border-white/10 shadow-[0_-5px_15px_rgba(0,0,0,0.5)] pt-2 pb-1 pb-safe">
+            <div className="flex items-center justify-around h-14 px-2">
+                <button 
+                    onClick={() => handleNavigation('Home')}
+                    className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${activeTab === 'Home' ? 'text-white' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <Icon icon={activeTab === 'Home' ? "solar:home-smile-angle-bold" : "solar:home-smile-angle-linear"} width="24" height="24" className={activeTab === 'Home' ? 'text-blue-500' : ''} />
+                    <span className={`text-[10px] ${activeTab === 'Home' ? 'font-bold' : 'font-medium'}`}>Accueil</span>
+                </button>
+                <button 
+                    onClick={() => handleNavigation('Films')}
+                    className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${activeTab === 'Films' ? 'text-white' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <Icon icon={activeTab === 'Films' ? "solar:clapperboard-play-bold" : "solar:clapperboard-play-linear"} width="24" height="24" className={activeTab === 'Films' ? 'text-blue-500' : ''} />
+                    <span className={`text-[10px] ${activeTab === 'Films' ? 'font-bold' : 'font-medium'}`}>Films</span>
+                </button>
+                <button 
+                    onClick={() => handleNavigation('Chaines TV')}
+                    className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${activeTab === 'Chaines TV' ? 'text-white' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <Icon icon={activeTab === 'Chaines TV' ? "solar:tv-bold" : "solar:tv-linear"} width="24" height="24" className={activeTab === 'Chaines TV' ? 'text-blue-500' : ''} />
+                    <span className={`text-[10px] ${activeTab === 'Chaines TV' ? 'font-bold' : 'font-medium'}`}>TV</span>
+                </button>
+                <button 
+                    onClick={() => handleNavigation('Ma Liste')}
+                    className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${activeTab === 'Ma Liste' ? 'text-white' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <Icon icon={activeTab === 'Ma Liste' ? "solar:bookmark-square-minimalistic-bold" : "solar:bookmark-square-minimalistic-linear"} width="24" height="24" className={activeTab === 'Ma Liste' ? 'text-blue-500' : ''} />
+                    <span className={`text-[10px] ${activeTab === 'Ma Liste' ? 'font-bold' : 'font-medium'}`}>Ma Liste</span>
+                </button>
+            </div>
+        </div>
+        </>
     );
 };

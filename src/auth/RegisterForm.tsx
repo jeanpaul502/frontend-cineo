@@ -167,7 +167,7 @@ const RegisterForm = () => {
                   Créer un compte
                 </h2>
                 <p className="text-sm text-gray-400 leading-relaxed">
-                  Créez votre compte Nextmovi et accédez instantanément à des milliers de films, séries exclusives, événements sportifs en direct et bien plus encore
+                  Créez votre compte {APP_NAME} et accédez instantanément à des milliers de films, chaînes de télévision, événements sportifs en direct et bien plus encore
                 </p>
               </div>
 

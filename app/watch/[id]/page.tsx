@@ -324,12 +324,23 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
 
     const handleBack = () => router.back();
 
-    const togglePlay = (e?: React.MouseEvent) => {
+    const togglePlay = async (e?: React.MouseEvent) => {
         e?.stopPropagation();
         const video = videoRef.current;
         if (!video) return;
         if (video.paused) {
-            video.play().catch(err => console.error('[Play]', err));
+            try {
+                await video.play();
+                if (window.innerWidth < 768) {
+                    if (video.requestFullscreen) {
+                        await video.requestFullscreen();
+                    } else if ((video as any).webkitEnterFullscreen) {
+                        (video as any).webkitEnterFullscreen();
+                    }
+                }
+            } catch (err) {
+                console.error('[Play]', err);
+            }
         } else {
             video.pause();
         }
@@ -461,7 +472,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
             </div>
 
             {/* ── Bottom Controls ── */}
-            <div className={`absolute bottom-0 left-0 right-0 transition-all duration-500 ease-in-out z-20 ${showControls || !isPlaying ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'}`}>
+            <div className={`hidden md:block absolute bottom-0 left-0 right-0 transition-all duration-500 ease-in-out z-20 ${showControls || !isPlaying ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'}`}>
                 <div className="absolute w-full bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
 
                 <div className="relative z-20 p-6 pt-2 pb-10">

@@ -95,7 +95,7 @@ const LoginForm = () => {
               </div>
 
               <p className="text-sm text-gray-400 leading-relaxed">
-                Connectez-vous à votre compte Nextmovi pour profiter de milliers de films, séries, sports et divertissements en streaming.
+                Connectez-vous à votre compte {APP_NAME} pour profiter de milliers de films, chaînes de télévision, sports et divertissements en streaming.
               </p>
             </div>
 
