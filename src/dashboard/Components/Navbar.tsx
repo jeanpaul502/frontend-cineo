@@ -702,6 +702,15 @@ export const Navbar = () => {
                     <Icon icon={activeTab === 'Home' ? "solar:home-smile-angle-bold" : "solar:home-smile-angle-linear"} width="24" height="24" className={activeTab === 'Home' ? 'text-blue-500' : ''} />
                     <span className={`text-[10px] ${activeTab === 'Home' ? 'font-bold' : 'font-medium'}`}>Accueil</span>
                 </button>
+
+                <button 
+                    onClick={() => setIsSearchOpen(!isSearchOpen)}
+                    className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${isSearchOpen ? 'text-white' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <Icon icon={isSearchOpen ? "solar:magnifer-bold" : "solar:magnifer-linear"} width="24" height="24" className={isSearchOpen ? 'text-blue-500' : ''} />
+                    <span className={`text-[10px] ${isSearchOpen ? 'font-bold' : 'font-medium'}`}>Recherche</span>
+                </button>
+
                 <button 
                     onClick={() => handleNavigation('Films')}
                     className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${activeTab === 'Films' ? 'text-white' : 'text-gray-500 hover:text-white'}`}
