@@ -14,8 +14,8 @@ export const MyList = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchList = () => {
-            const list = getMyList();
+        const fetchList = async () => {
+            const list = await getMyList();
             setMovies(list);
             setIsLoading(false);
         };
