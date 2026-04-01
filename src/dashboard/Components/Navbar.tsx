@@ -7,7 +7,6 @@ import { Icon } from '@iconify/react';
 import { APP_NAME, API_BASE_URL } from '../../services/config';
 import { authService } from '../../services/auth.service';
 import { moviesService, Movie } from '../../services/movies.service';
-import { socketService } from '../../services/socket.service';
 import { useRouter, usePathname } from 'next/navigation';
 import { showSuccessToast, showErrorToast } from '../../lib/toast';
 
@@ -257,20 +256,8 @@ export const Navbar = () => {
 
     useEffect(() => {
         if (!userData?.id) return;
-        socketService.connect();
-
-        const handleUserUpdated = (payload: any) => {
-            const next = payload?.user || payload;
-            if (!next?.id) return;
-            if (String(next.id) !== String(userData.id)) return;
-            setUserData((prev) => ({ ...(prev as any), ...next }));
-            localStorage.setItem('netfix_user_data', JSON.stringify(next));
-        };
-
-        socketService.on('userUpdated', handleUserUpdated);
-        return () => {
-            socketService.off('userUpdated', handleUserUpdated);
-        };
+        
+        // Socket removed
     }, [userData?.id]);
 
     // Close menu or search when clicking outside

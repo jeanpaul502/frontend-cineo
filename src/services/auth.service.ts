@@ -1,6 +1,5 @@
 import { ServiceConfig } from './config';
 import { ApiService } from './api.service';
-import { socketService } from './socket.service';
 
 export interface LoginDto {
     email: string;
@@ -29,6 +28,12 @@ class AuthService extends ApiService {
         const d = new Date();
         d.setTime(d.getTime() + (7*24*60*60*1000));
         document.cookie = `cineo_session_token=${token};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+    }
+
+    public getToken(): string | null {
+        if (typeof document === 'undefined') return null;
+        const match = document.cookie.match(/(?:^|;\s*)cineo_session_token=([^;]*)/);
+        return match ? match[1] : null;
     }
 
     private removeToken() {
@@ -293,7 +298,6 @@ class AuthService extends ApiService {
             // Ignore error on logout (token might be invalid already)
         } finally {
             this.removeToken();
-            socketService.disconnect();
         }
     }
 

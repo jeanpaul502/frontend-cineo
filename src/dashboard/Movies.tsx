@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { moviesService, Movie } from '../services/movies.service';
-import { socketService } from '../services/socket.service';
 import { cacheService, CACHE_KEYS } from '../services/cache.service';
 import { Navbar } from './Components/Navbar';
 import { MovieGridCard } from './Components/MovieGridCard';
@@ -48,43 +47,6 @@ export const Movies = () => {
         } else {
             fetchMovies(false);
         }
-
-        const handleMovieCreated = (newMovie: Movie) => {
-            moviesService.applyWebSocketUpdate('created', newMovie);
-            if (newMovie.status === 'active') {
-                setMovies(prev => {
-                    if (prev.find(m => m.id === newMovie.id)) return prev;
-                    return [newMovie, ...prev];
-                });
-            }
-        };
-
-        const handleMovieUpdated = (updatedMovie: Movie) => {
-            moviesService.applyWebSocketUpdate('updated', updatedMovie);
-            setMovies(prev => {
-                if (updatedMovie.status === 'active') {
-                    const exists = prev.find(m => m.id === updatedMovie.id);
-                    return exists ? prev.map(m => m.id === updatedMovie.id ? updatedMovie : m) : [updatedMovie, ...prev];
-                }
-                return prev.filter(m => m.id !== updatedMovie.id);
-            });
-        };
-
-        const handleMovieDeleted = (data: { id: string }) => {
-            moviesService.applyWebSocketUpdate('deleted', { id: data.id } as any);
-            setMovies(prev => prev.filter(m => m.id !== data.id));
-        };
-
-        socketService.connect();
-        socketService.on('movieCreated', handleMovieCreated);
-        socketService.on('movieUpdated', handleMovieUpdated);
-        socketService.on('movieDeleted', handleMovieDeleted);
-
-        return () => {
-            socketService.off('movieCreated', handleMovieCreated);
-            socketService.off('movieUpdated', handleMovieUpdated);
-            socketService.off('movieDeleted', handleMovieDeleted);
-        };
     }, []);
 
     // movieParam mapping is handled in Navbar now correctly? Well, movieParam here still opens the movie if we click it directly from somewhere else. 

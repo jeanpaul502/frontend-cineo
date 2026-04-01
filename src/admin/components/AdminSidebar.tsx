@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
+import { requestsService, MediaRequest } from '../../services/requests.service';
 
 interface AdminSidebarProps {
     user: any;
@@ -8,6 +9,26 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ user, activeTab = 'overview', onTabChange }) => {
+    const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+    useEffect(() => {
+        const fetchPendingRequests = async () => {
+            try {
+                const reqs = await requestsService.getAdminRequests();
+                const pending = reqs.filter((r: MediaRequest) => r.status === 'pending');
+                setPendingRequestsCount(pending.length);
+            } catch (error) {
+                console.error("Failed to fetch pending requests count", error);
+            }
+        };
+
+        fetchPendingRequests();
+        
+        // Refresh count every minute to keep it updated
+        const interval = setInterval(fetchPendingRequests, 60000);
+        return () => clearInterval(interval);
+    }, []);
+
     // Liste simple des éléments du menu
     const menuItems = [
         { id: 'overview', label: "Vue d'ensemble", icon: "solar:widget-5-linear" },
@@ -15,8 +36,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ user, activeTab = 'overview
         { id: 'movies', label: "Films", icon: "solar:clapperboard-play-linear" },
         { id: 'series', label: "Séries", icon: "solar:play-stream-linear" },
         { id: 'channels', label: "Chaînes TV", icon: "solar:tv-linear" },
-        { id: 'requests', label: "Demandes", icon: "solar:clipboard-list-linear", badge: 12 },
-        { id: 'notifications', label: "Notifications", icon: "solar:bell-linear", badge: 5 }
+        { id: 'requests', label: "Demandes", icon: "solar:clipboard-list-linear", badge: pendingRequestsCount > 0 ? pendingRequestsCount : undefined },
+        { id: 'notifications', label: "Notifications", icon: "solar:bell-linear", badge: undefined } // You can do the same for notifications if needed
     ];
 
     return (

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { APP_NAME } from "../src/services/config";
 import { Providers } from './providers';
+import AnnouncementModal from '../src/dashboard/Components/AnnouncementModal';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           {children}
+          <AnnouncementModal />
         </Providers>
       </body>
     </html>

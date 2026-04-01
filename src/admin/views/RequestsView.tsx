@@ -5,6 +5,7 @@ import { showErrorToast, showSuccessToast } from '../../lib/toast';
 import { requestsService, MediaRequest } from '../../services/requests.service';
 import MovieModal from '../components/MovieModal';
 import { moviesService, Movie } from '../../services/movies.service';
+import { MoreVertical } from 'lucide-react';
 
 type MenuState = { requestId: string; x: number; y: number } | null;
 
@@ -173,21 +174,43 @@ const RequestsView: React.FC = () => {
                             <>
                                 <button
                                     onClick={() => openAddMovie(r)}
-                                    className="w-full px-4 py-3 text-left text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
                                 >
+                                    <Icon icon="solar:clapperboard-play-bold" width="18" className="text-blue-500" />
                                     Ajouter
                                 </button>
-                                {isTerminal(r.status) && (
-                                    <button
-                                        onClick={() => {
-                                            setDeleteTarget(r);
-                                            setMenu(null);
-                                        }}
-                                        className="w-full px-4 py-3 text-left text-sm font-bold text-red-300 hover:bg-red-500/10 transition-colors border-t border-white/10"
-                                    >
-                                        Supprimer
-                                    </button>
+
+                                {!isTerminal(r.status) && (
+                                    <>
+                                        <button
+                                            onClick={() => updateStatus(r.id, 'approved')}
+                                            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                                        >
+                                            <Icon icon="solar:check-circle-bold" width="18" className="text-green-500" />
+                                            Approuver
+                                        </button>
+                                        <button
+                                            onClick={() => updateStatus(r.id, 'rejected')}
+                                            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                                        >
+                                            <Icon icon="solar:close-circle-bold" width="18" className="text-yellow-500" />
+                                            Refuser
+                                        </button>
+                                    </>
                                 )}
+
+                                <div className="h-px bg-white/10 my-1 w-full" />
+
+                                <button
+                                    onClick={() => {
+                                        setDeleteTarget(r);
+                                        setMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors flex items-center gap-3"
+                                >
+                                    <Icon icon="solar:trash-bin-trash-bold" width="18" />
+                                    Supprimer
+                                </button>
                             </>
                         );
                     })()}
@@ -238,8 +261,7 @@ const RequestsView: React.FC = () => {
                                 <th className="px-4 py-3 font-semibold">Contact</th>
                                 <th className="px-4 py-3 font-semibold text-center">Date</th>
                                 <th className="px-4 py-3 font-semibold text-center">Statut</th>
-                                <th className="px-4 py-3 font-semibold text-center w-28">Actions</th>
-                                <th className="px-4 py-3 font-semibold text-right w-14"></th>
+                                <th className="px-4 py-3 font-semibold text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -305,35 +327,13 @@ const RequestsView: React.FC = () => {
                                                     {badge.label}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-center">
-                                                {r.status === 'pending' ? (
-                                                    <div className="inline-flex items-center gap-2">
-                                                        <button
-                                                            onClick={() => updateStatus(r.id, 'approved')}
-                                                            className="p-2 rounded-xl text-green-400 hover:bg-white/10 transition-colors"
-                                                            aria-label="Approuver"
-                                                        >
-                                                            <Icon icon="solar:check-circle-bold" width="18" height="18" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => updateStatus(r.id, 'rejected')}
-                                                            className="p-2 rounded-xl text-red-400 hover:bg-white/10 transition-colors"
-                                                            aria-label="Refuser"
-                                                        >
-                                                            <Icon icon="solar:close-circle-bold" width="18" height="18" />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-gray-500 text-xs">—</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
+                                            <td className="px-4 py-3 text-right relative">
                                                 <button
                                                     onClick={(e) => openMenu(r.id, e.currentTarget)}
-                                                    className="p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                                                    className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors action-menu-trigger inline-flex items-center justify-center"
                                                     aria-label="Menu"
                                                 >
-                                                    <Icon icon="solar:menu-dots-linear" width="28" height="28" className="text-white" />
+                                                    <Icon icon="solar:menu-dots-bold" width="24" height="24" />
                                                 </button>
                                             </td>
                                         </tr>

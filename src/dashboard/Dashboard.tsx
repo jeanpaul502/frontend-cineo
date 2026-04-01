@@ -9,7 +9,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { moviesService, Movie } from '../services/movies.service';
-import { socketService } from '../services/socket.service';
 import { cacheService, CACHE_KEYS } from '../services/cache.service';
 import { LoadingScreen } from './Components/LoadingScreen';
 
@@ -109,36 +108,6 @@ export default function Dashboard() {
             // Pas de cache : chargement normal
             fetchMovies(false);
         }
-
-        // WebSocket — met à jour cache + état React en temps réel
-        const handleMovieCreated = (newMovie: Movie) => {
-            moviesService.applyWebSocketUpdate('created', newMovie);
-            setMovies(prev => {
-                if (prev.find(m => m.id === newMovie.id)) return prev;
-                return [newMovie, ...prev];
-            });
-        };
-
-        const handleMovieUpdated = (updatedMovie: Movie) => {
-            moviesService.applyWebSocketUpdate('updated', updatedMovie);
-            setMovies(prev => prev.map(m => m.id === updatedMovie.id ? updatedMovie : m));
-        };
-
-        const handleMovieDeleted = (data: { id: string }) => {
-            moviesService.applyWebSocketUpdate('deleted', { id: data.id } as any);
-            setMovies(prev => prev.filter(m => m.id !== data.id));
-        };
-
-        socketService.connect();
-        socketService.on('movieCreated', handleMovieCreated);
-        socketService.on('movieUpdated', handleMovieUpdated);
-        socketService.on('movieDeleted', handleMovieDeleted);
-
-        return () => {
-            socketService.off('movieCreated', handleMovieCreated);
-            socketService.off('movieUpdated', handleMovieUpdated);
-            socketService.off('movieDeleted', handleMovieDeleted);
-        };
     }, []);
 
     // Open Movie Details from URL search parameter or global event (instant)

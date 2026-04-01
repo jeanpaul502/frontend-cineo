@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { showSuccessToast, showErrorToast, showInfoToast } from '../lib/toast';
 import { authService } from '../services/auth.service';
 import { apiService } from '../services/api.service';
-import { socketService } from '../services/socket.service';
 
 interface UserProfile {
     id?: string;
@@ -200,29 +199,8 @@ export default function Settings() {
 
     useEffect(() => {
         if (!profile?.id) return;
-        socketService.connect();
-
-        const handleUserUpdated = (payload: any) => {
-            const next = payload?.user || payload;
-            if (!next?.id) return;
-            if (String(next.id) !== String(profile.id)) return;
-            localStorage.setItem('netfix_user_data', JSON.stringify(next));
-            setProfile((prev) => ({
-                ...prev,
-                firstName: next.firstName ?? prev.firstName,
-                lastName: next.lastName ?? prev.lastName,
-                email: next.email ?? prev.email,
-                avatar: next.profilePicture ?? next.avatar ?? prev.avatar,
-                subscriptionType: next.subscriptionType ?? prev.subscriptionType,
-                subscriptionEndDate: next.subscriptionEndDate ?? prev.subscriptionEndDate,
-                emailVerified: next.isVerified ?? next.emailVerified ?? prev.emailVerified,
-            }));
-        };
-
-        socketService.on('userUpdated', handleUserUpdated);
-        return () => {
-            socketService.off('userUpdated', handleUserUpdated);
-        };
+        
+        // Socket removed
     }, [profile?.id]);
 
     const handleSave = async (retry = true) => {

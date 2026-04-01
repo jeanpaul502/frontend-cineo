@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { Movie, moviesService } from '../../services/movies.service';
-import { socketService } from '../../services/socket.service';
+
+import { authService } from '../../services/auth.service';
+import { API_BASE_URL } from '../../services/config';
 
 interface DownloadModalProps {
     isOpen: boolean;
@@ -63,24 +65,42 @@ export const DownloadModal = ({ isOpen, onClose, movie }: DownloadModalProps) =>
             isDownloadingRef.current = false;
         }
 
-        // --- NEW: Socket.io listener for remote conversion progress ---
-        const handleRemoteProgress = (data: { movieId: string, progress: number, status: string }) => {
-            if (data.movieId === movie.id && isDownloadingRef.current) {
-                setServerProgressSafe(Math.min(data.progress, 99));
-            }
-        };
-
-        socketService.on('downloadProgress', handleRemoteProgress);
-
         // Revoke blob URL when modal closes to free memory
         return () => {
-            socketService.off('downloadProgress', handleRemoteProgress);
             if (!isOpen && blobUrlRef.current) {
                 URL.revokeObjectURL(blobUrlRef.current);
                 blobUrlRef.current = null;
             }
         };
     }, [isOpen, movie.id]);
+
+    useEffect(() => {
+        let progressInterval: NodeJS.Timeout;
+
+        if (downloadStatus === 'converting' && isDownloadingRef.current && movie?.id) {
+            progressInterval = setInterval(async () => {
+                try {
+                    const token = authService.getToken();
+                    const response = await fetch(`${API_BASE_URL}/movies/${movie.id}/download/progress`, {
+                        headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const pct = Number(data?.progress || 0);
+                        if (Number.isFinite(pct)) {
+                            setServerProgressSafe(pct);
+                        }
+                    }
+                } catch (e) {
+                    // Ignore errors during polling
+                }
+            }, 1000);
+        }
+
+        return () => {
+            if (progressInterval) clearInterval(progressInterval);
+        };
+    }, [downloadStatus, movie?.id]);
 
     if (!movie) return null;
 
