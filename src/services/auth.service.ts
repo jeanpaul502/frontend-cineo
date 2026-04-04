@@ -235,14 +235,14 @@ class AuthService extends ApiService {
     }
 
     async verifyPin(email: string, pin: string): Promise<AuthResponse> {
-        return this.request<AuthResponse>('/auth/verify-pin', {
+        return this.request<AuthResponse>('/auth/verify-code', {
             method: 'POST',
-            body: JSON.stringify({ email, pin }),
+            body: JSON.stringify({ email, code: pin }),
         });
     }
 
     async resendPin(email: string): Promise<AuthResponse> {
-        return this.request<AuthResponse>('/auth/resend-pin', {
+        return this.request<AuthResponse>('/auth/resend-verification-code', {
             method: 'POST',
             body: JSON.stringify({ email }),
         });
