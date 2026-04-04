@@ -9,7 +9,7 @@ export const ServiceConfig = {
 
     // URL de l'API Backend
     // Utiliser 127.0.0.1 pour le développement local sur la même machine (plus fiable que localhost)
-    API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://analytics.cineo.online',
+    API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://analytics.cineo.live',
 
     // Timeout par défaut pour les requêtes (en ms)
     DEFAULT_TIMEOUT: 10000,
